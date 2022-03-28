@@ -1,0 +1,1148 @@
+,Unnamed: 0,docstring,code,partition
+0,0,"bind indexed elements to the supplied collection
+","protected final void bindIndexed(ConfigurationPropertyName name, Bindable<?> target,
+			AggregateElementBinder elementBinder, ResolvableType aggregateType,
+			ResolvableType elementType, IndexedCollectionSupplier result) {
+		for (ConfigurationPropertySource source : getContext().getSources()) {
+			bindIndexed(source, name, target, elementBinder, result, aggregateType,
+					elementType);
+			if (result.wasSupplied() && result.get() != null) {
+				return;
+			}
+		}
+	}",train
+1,1,"set servlet names that the filter will be registered against
+","public void setServletNames(Collection<String> servletNames) {
+		Assert.notNull(servletNames, ""ServletNames must not be null"");
+		this.servletNames = new LinkedHashSet<>(servletNames);
+	}",train
+2,2,"add servlet names for the filter
+","public void addServletNames(String... servletNames) {
+		Assert.notNull(servletNames, ""ServletNames must not be null"");
+		this.servletNames.addAll(Arrays.asList(servletNames));
+	}",train
+3,3,"set the url patterns that the filter will be registered against
+","public void setUrlPatterns(Collection<String> urlPatterns) {
+		Assert.notNull(urlPatterns, ""UrlPatterns must not be null"");
+		this.urlPatterns = new LinkedHashSet<>(urlPatterns);
+	}",train
+4,4,"add url patterns as defined in the servlet specification that the filter will be registered against
+","public void addUrlPatterns(String... urlPatterns) {
+		Assert.notNull(urlPatterns, ""UrlPatterns must not be null"");
+		Collections.addAll(this.urlPatterns, urlPatterns);
+	}",train
+5,5,"configure registration settings
+","@Override
+	protected void configure(FilterRegistration.Dynamic registration) {
+		super.configure(registration);
+		EnumSet<DispatcherType> dispatcherTypes = this.dispatcherTypes;
+		if (dispatcherTypes == null) {
+			dispatcherTypes = EnumSet.of(DispatcherType.REQUEST);
+		}
+		Set<String> servletNames = new LinkedHashSet<>();
+		for (ServletRegistrationBean<?> servletRegistrationBean : this.servletRegistrationBeans) {
+			servletNames.add(servletRegistrationBean.getServletName());
+		}
+		servletNames.addAll(this.servletNames);
+		if (servletNames.isEmpty() && this.urlPatterns.isEmpty()) {
+			registration.addMappingForUrlPatterns(dispatcherTypes, this.matchAfter,
+					DEFAULT_URL_MAPPINGS);
+		}
+		else {
+			if (!servletNames.isEmpty()) {
+				registration.addMappingForServletNames(dispatcherTypes, this.matchAfter,
+						StringUtils.toStringArray(servletNames));
+			}
+			if (!this.urlPatterns.isEmpty()) {
+				registration.addMappingForUrlPatterns(dispatcherTypes, this.matchAfter,
+						StringUtils.toStringArray(this.urlPatterns));
+			}
+		}
+	}",train
+6,6,"add dependencies and all of their dependencies
+","public DependencyCustomizer add(String... modules) {
+		for (String module : modules) {
+			add(module, null, null, true);
+		}
+		return this;
+	}",train
+7,7,"add a single dependency and optionally all of its dependencies
+","public DependencyCustomizer add(String module, boolean transitive) {
+		return add(module, null, null, transitive);
+	}",train
+8,8,"add a single dependency with the specified classifier and type and optionally all of its dependencies
+","public DependencyCustomizer add(String module, String classifier, String type,
+			boolean transitive) {
+		if (canAdd()) {
+			ArtifactCoordinatesResolver artifactCoordinatesResolver = this.dependencyResolutionContext
+					.getArtifactCoordinatesResolver();
+			this.classNode.addAnnotation(
+					createGrabAnnotation(artifactCoordinatesResolver.getGroupId(module),
+							artifactCoordinatesResolver.getArtifactId(module),
+							artifactCoordinatesResolver.getVersion(module), classifier,
+							type, transitive));
+		}
+		return this;
+	}",train
+9,9,"return a subdirectory of the application temp
+","public File getDir(String subDir) {
+		File dir = new File(getDir(), subDir);
+		dir.mkdirs();
+		return dir;
+	}",train
+10,10,"return the directory to be used for application specific temp files
+","public File getDir() {
+		if (this.dir == null) {
+			synchronized (this) {
+				byte[] hash = generateHash(this.sourceClass);
+				this.dir = new File(getTempDirectory(), toHexString(hash));
+				this.dir.mkdirs();
+				Assert.state(this.dir.exists(),
+						() -> ""Unable to create temp directory "" + this.dir);
+			}
+		}
+		return this.dir;
+	}",train
+11,11,"extract the content to contribute to the info endpoint
+","protected Map<String, Object> generateContent() {
+		Map<String, Object> content = extractContent(toPropertySource());
+		postProcessContent(content);
+		return content;
+	}",train
+12,12,"return the nested map with the specified key or empty map if the specified map contains no mapping for the key
+","@SuppressWarnings(""unchecked"")
+	protected Map<String, Object> getNestedMap(Map<String, Object> map, String key) {
+		Object value = map.get(key);
+		if (value == null) {
+			return Collections.emptyMap();
+		}
+		return (Map<String, Object>) value;
+	}",train
+13,13,"start a call to a single callback instance dealing with common generic type concerns and exceptions
+","public static <C, A> Callback<C, A> callback(Class<C> callbackType,
+			C callbackInstance, A argument, Object... additionalArguments) {
+		Assert.notNull(callbackType, ""CallbackType must not be null"");
+		Assert.notNull(callbackInstance, ""CallbackInstance must not be null"");
+		return new Callback<>(callbackType, callbackInstance, argument,
+				additionalArguments);
+	}",train
+14,14,"start a call to callback instances dealing with common generic type concerns and exceptions
+","public static <C, A> Callbacks<C, A> callbacks(Class<C> callbackType,
+			Collection<? extends C> callbackInstances, A argument,
+			Object... additionalArguments) {
+		Assert.notNull(callbackType, ""CallbackType must not be null"");
+		Assert.notNull(callbackInstances, ""CallbackInstances must not be null"");
+		return new Callbacks<>(callbackType, callbackInstances, argument,
+				additionalArguments);
+	}",train
+15,15,"invoke the callback instances where the callback method returns a result
+","public <R> Stream<R> invokeAnd(Function<C, R> invoker) {
+			Function<C, InvocationResult<R>> mapper = (callbackInstance) -> invoke(
+					callbackInstance, () -> invoker.apply(callbackInstance));
+			return this.callbackInstances.stream().map(mapper)
+					.filter(InvocationResult::hasResult).map(InvocationResult::get);
+		}",train
+16,16,"start the livereload server and accept incoming connections
+","public int start() throws IOException {
+		synchronized (this.monitor) {
+			Assert.state(!isStarted(), ""Server already started"");
+			logger.debug(""Starting live reload server on port "" + this.port);
+			this.serverSocket = new ServerSocket(this.port);
+			int localPort = this.serverSocket.getLocalPort();
+			this.listenThread = this.threadFactory.newThread(this::acceptConnections);
+			this.listenThread.setDaemon(true);
+			this.listenThread.setName(""Live Reload Server"");
+			this.listenThread.start();
+			return localPort;
+		}
+	}",train
+17,17,"gracefully stop the livereload server
+","public void stop() throws IOException {
+		synchronized (this.monitor) {
+			if (this.listenThread != null) {
+				closeAllConnections();
+				try {
+					this.executor.shutdown();
+					this.executor.awaitTermination(1, TimeUnit.MINUTES);
+				}
+				catch (InterruptedException ex) {
+					Thread.currentThread().interrupt();
+				}
+				this.serverSocket.close();
+				try {
+					this.listenThread.join();
+				}
+				catch (InterruptedException ex) {
+					Thread.currentThread().interrupt();
+				}
+				this.listenThread = null;
+				this.serverSocket = null;
+			}
+		}
+	}",train
+18,18,"trigger livereload of all connected clients
+","public void triggerReload() {
+		synchronized (this.monitor) {
+			synchronized (this.connections) {
+				for (Connection connection : this.connections) {
+					try {
+						connection.triggerReload();
+					}
+					catch (Exception ex) {
+						logger.debug(""Unable to send reload message"", ex);
+					}
+				}
+			}
+		}
+	}",train
+19,19,"create an application context and its parent if specified with the command line args provided
+","public ConfigurableApplicationContext run(String... args) {
+		if (this.running.get()) {
+			// If already created we just return the existing context
+			return this.context;
+		}
+		configureAsChildIfNecessary(args);
+		if (this.running.compareAndSet(false, true)) {
+			synchronized (this.running) {
+				// If not already running copy the sources over and then run.
+				this.context = build().run(args);
+			}
+		}
+		return this.context;
+	}",train
+20,20,"create a child application with the provided sources
+","public SpringApplicationBuilder child(Class<?>... sources) {
+		SpringApplicationBuilder child = new SpringApplicationBuilder();
+		child.sources(sources);
+
+		// Copy environment stuff from parent to child
+		child.properties(this.defaultProperties).environment(this.environment)
+				.additionalProfiles(this.additionalProfiles);
+		child.parent = this;
+
+		// It's not possible if embedded web server are enabled to support web contexts as
+		// parents because the servlets cannot be initialized at the right point in
+		// lifecycle.
+		web(WebApplicationType.NONE);
+
+		// Probably not interested in multiple banners
+		bannerMode(Banner.Mode.OFF);
+
+		// Make sure sources get copied over
+		this.application.addPrimarySources(this.sources);
+
+		return child;
+	}",train
+21,21,"add a parent application with the provided sources
+","public SpringApplicationBuilder parent(Class<?>... sources) {
+		if (this.parent == null) {
+			this.parent = new SpringApplicationBuilder(sources)
+					.web(WebApplicationType.NONE).properties(this.defaultProperties)
+					.environment(this.environment);
+		}
+		else {
+			this.parent.sources(sources);
+		}
+		return this.parent;
+	}",train
+22,22,"add an already running parent context to an existing application
+","public SpringApplicationBuilder parent(ConfigurableApplicationContext parent) {
+		this.parent = new SpringApplicationBuilder();
+		this.parent.context = parent;
+		this.parent.running.set(true);
+		return this;
+	}",train
+23,23,"create a sibling application one with the same parent
+","public SpringApplicationBuilder sibling(Class<?>[] sources, String... args) {
+		return runAndExtractParent(args).child(sources);
+	}",train
+24,24,"add more sources configuration classes and components to this application
+","public SpringApplicationBuilder sources(Class<?>... sources) {
+		this.sources.addAll(new LinkedHashSet<>(Arrays.asList(sources)));
+		return this;
+	}",train
+25,25,"default properties for the environment
+","public SpringApplicationBuilder properties(Map<String, Object> defaults) {
+		this.defaultProperties.putAll(defaults);
+		this.application.setDefaultProperties(this.defaultProperties);
+		if (this.parent != null) {
+			this.parent.properties(this.defaultProperties);
+			this.parent.environment(this.environment);
+		}
+		return this;
+	}",train
+26,26,"add to the active spring profiles for this app and its parent and children
+","public SpringApplicationBuilder profiles(String... profiles) {
+		this.additionalProfiles.addAll(Arrays.asList(profiles));
+		this.application.setAdditionalProfiles(
+				StringUtils.toStringArray(this.additionalProfiles));
+		return this;
+	}",train
+27,27,"add converters useful for most spring boot applications
+","public static void addApplicationConverters(ConverterRegistry registry) {
+		addDelimitedStringConverters(registry);
+		registry.addConverter(new StringToDurationConverter());
+		registry.addConverter(new DurationToStringConverter());
+		registry.addConverter(new NumberToDurationConverter());
+		registry.addConverter(new DurationToNumberConverter());
+		registry.addConverter(new StringToDataSizeConverter());
+		registry.addConverter(new NumberToDataSizeConverter());
+		registry.addConverterFactory(new StringToEnumIgnoringCaseConverterFactory());
+	}",train
+28,28,"add converters to support delimited strings
+","public static void addDelimitedStringConverters(ConverterRegistry registry) {
+		ConversionService service = (ConversionService) registry;
+		registry.addConverter(new ArrayToDelimitedStringConverter(service));
+		registry.addConverter(new CollectionToDelimitedStringConverter(service));
+		registry.addConverter(new DelimitedStringToArrayConverter(service));
+		registry.addConverter(new DelimitedStringToCollectionConverter(service));
+	}",train
+29,29,"add formatters useful for most spring boot applications
+","public static void addApplicationFormatters(FormatterRegistry registry) {
+		registry.addFormatter(new CharArrayFormatter());
+		registry.addFormatter(new InetAddressFormatter());
+		registry.addFormatter(new IsoOffsetFormatter());
+	}",train
+30,30,"determine the driver to use based on this configuration and the environment
+","public String determineDriverClassName() {
+		if (StringUtils.hasText(this.driverClassName)) {
+			Assert.state(driverClassIsLoadable(),
+					() -> ""Cannot load driver class: "" + this.driverClassName);
+			return this.driverClassName;
+		}
+		String driverClassName = null;
+		if (StringUtils.hasText(this.url)) {
+			driverClassName = DatabaseDriver.fromJdbcUrl(this.url).getDriverClassName();
+		}
+		if (!StringUtils.hasText(driverClassName)) {
+			driverClassName = this.embeddedDatabaseConnection.getDriverClassName();
+		}
+		if (!StringUtils.hasText(driverClassName)) {
+			throw new DataSourceBeanCreationException(
+					""Failed to determine a suitable driver class"", this,
+					this.embeddedDatabaseConnection);
+		}
+		return driverClassName;
+	}",train
+31,31,"determine the url to use based on this configuration and the environment
+","public String determineUrl() {
+		if (StringUtils.hasText(this.url)) {
+			return this.url;
+		}
+		String databaseName = determineDatabaseName();
+		String url = (databaseName != null)
+				? this.embeddedDatabaseConnection.getUrl(databaseName) : null;
+		if (!StringUtils.hasText(url)) {
+			throw new DataSourceBeanCreationException(
+					""Failed to determine suitable jdbc url"", this,
+					this.embeddedDatabaseConnection);
+		}
+		return url;
+	}",train
+32,32,"determine the name to used based on this configuration
+","public String determineDatabaseName() {
+		if (this.generateUniqueName) {
+			if (this.uniqueName == null) {
+				this.uniqueName = UUID.randomUUID().toString();
+			}
+			return this.uniqueName;
+		}
+		if (StringUtils.hasLength(this.name)) {
+			return this.name;
+		}
+		if (this.embeddedDatabaseConnection != EmbeddedDatabaseConnection.NONE) {
+			return ""testdb"";
+		}
+		return null;
+	}",train
+33,33,"determine the username to use based on this configuration and the environment
+","public String determineUsername() {
+		if (StringUtils.hasText(this.username)) {
+			return this.username;
+		}
+		if (EmbeddedDatabaseConnection.isEmbedded(determineDriverClassName())) {
+			return ""sa"";
+		}
+		return null;
+	}",train
+34,34,"determine the password to use based on this configuration and the environment
+","public String determinePassword() {
+		if (StringUtils.hasText(this.password)) {
+			return this.password;
+		}
+		if (EmbeddedDatabaseConnection.isEmbedded(determineDriverClassName())) {
+			return """";
+		}
+		return null;
+	}",train
+35,35,"loads the service capabilities of the service at the specified url
+","public Object loadServiceCapabilities(String serviceUrl) throws IOException {
+		HttpGet request = new HttpGet(serviceUrl);
+		request.setHeader(
+				new BasicHeader(HttpHeaders.ACCEPT, ACCEPT_SERVICE_CAPABILITIES));
+		CloseableHttpResponse httpResponse = execute(request, serviceUrl,
+				""retrieve help"");
+		validateResponse(httpResponse, serviceUrl);
+		HttpEntity httpEntity = httpResponse.getEntity();
+		ContentType contentType = ContentType.getOrDefault(httpEntity);
+		if (contentType.getMimeType().equals(""text/plain"")) {
+			return getContent(httpEntity);
+		}
+		return parseJsonMetadata(httpEntity);
+	}",train
+36,36,"retrieves the metadata of the service at the specified url
+","private CloseableHttpResponse executeInitializrMetadataRetrieval(String url) {
+		HttpGet request = new HttpGet(url);
+		request.setHeader(new BasicHeader(HttpHeaders.ACCEPT, ACCEPT_META_DATA));
+		return execute(request, url, ""retrieve metadata"");
+	}",train
+37,37,"compile and run the application
+","public void compileAndRun() throws Exception {
+		synchronized (this.monitor) {
+			try {
+				stop();
+				Class<?>[] compiledSources = compile();
+				monitorForChanges();
+				// Run in new thread to ensure that the context classloader is setup
+				this.runThread = new RunThread(compiledSources);
+				this.runThread.start();
+				this.runThread.join();
+			}
+			catch (Exception ex) {
+				if (this.fileWatchThread == null) {
+					throw ex;
+				}
+				else {
+					ex.printStackTrace();
+				}
+			}
+		}
+	}",train
+38,38,"generates the uri to use to generate a project represented by this request
+","URI generateUrl(InitializrServiceMetadata metadata) {
+		try {
+			URIBuilder builder = new URIBuilder(this.serviceUrl);
+			StringBuilder sb = new StringBuilder();
+			if (builder.getPath() != null) {
+				sb.append(builder.getPath());
+			}
+
+			ProjectType projectType = determineProjectType(metadata);
+			this.type = projectType.getId();
+			sb.append(projectType.getAction());
+			builder.setPath(sb.toString());
+
+			if (!this.dependencies.isEmpty()) {
+				builder.setParameter(""dependencies"",
+						StringUtils.collectionToCommaDelimitedString(this.dependencies));
+			}
+
+			if (this.groupId != null) {
+				builder.setParameter(""groupId"", this.groupId);
+			}
+			String resolvedArtifactId = resolveArtifactId();
+			if (resolvedArtifactId != null) {
+				builder.setParameter(""artifactId"", resolvedArtifactId);
+			}
+			if (this.version != null) {
+				builder.setParameter(""version"", this.version);
+			}
+			if (this.name != null) {
+				builder.setParameter(""name"", this.name);
+			}
+			if (this.description != null) {
+				builder.setParameter(""description"", this.description);
+			}
+			if (this.packageName != null) {
+				builder.setParameter(""packageName"", this.packageName);
+			}
+			if (this.type != null) {
+				builder.setParameter(""type"", projectType.getId());
+			}
+			if (this.packaging != null) {
+				builder.setParameter(""packaging"", this.packaging);
+			}
+			if (this.javaVersion != null) {
+				builder.setParameter(""javaVersion"", this.javaVersion);
+			}
+			if (this.language != null) {
+				builder.setParameter(""language"", this.language);
+			}
+			if (this.bootVersion != null) {
+				builder.setParameter(""bootVersion"", this.bootVersion);
+			}
+
+			return builder.build();
+		}
+		catch (URISyntaxException ex) {
+			throw new ReportableException(
+					""Invalid service URL ("" + ex.getMessage() + "")"");
+		}
+	}",train
+39,39,"return true if any of the specified conditions match
+","protected final boolean anyMatches(ConditionContext context,
+			AnnotatedTypeMetadata metadata, Condition... conditions) {
+		for (Condition condition : conditions) {
+			if (matches(context, metadata, condition)) {
+				return true;
+			}
+		}
+		return false;
+	}",train
+40,40,"return true if any of the specified condition matches
+","protected final boolean matches(ConditionContext context,
+			AnnotatedTypeMetadata metadata, Condition condition) {
+		if (condition instanceof SpringBootCondition) {
+			return ((SpringBootCondition) condition).getMatchOutcome(context, metadata)
+					.isMatch();
+		}
+		return condition.matches(context, metadata);
+	}",train
+41,41,"check if the exception is a log configuration message i
+","private boolean isLogConfigurationMessage(Throwable ex) {
+		if (ex instanceof InvocationTargetException) {
+			return isLogConfigurationMessage(ex.getCause());
+		}
+		String message = ex.getMessage();
+		if (message != null) {
+			for (String candidate : LOG_CONFIGURATION_MESSAGES) {
+				if (message.contains(candidate)) {
+					return true;
+				}
+			}
+		}
+		return false;
+	}",train
+42,42,"handle a single exception in the chain
+","private void handle(ExecuteContext context, SQLExceptionTranslator translator,
+			SQLException exception) {
+		DataAccessException translated = translate(context, translator, exception);
+		if (exception.getNextException() == null) {
+			context.exception(translated);
+		}
+		else {
+			logger.error(""Execution of SQL statement failed."", translated);
+		}
+	}",train
+43,43,"set the maximum time the executor is supposed to block on shutdown
+","public TaskSchedulerBuilder awaitTerminationPeriod(Duration awaitTerminationPeriod) {
+		return new TaskSchedulerBuilder(this.poolSize, this.awaitTermination,
+				awaitTerminationPeriod, this.threadNamePrefix, this.customizers);
+	}",train
+44,44,"set the prefix to use for the names of newly created threads
+","public TaskSchedulerBuilder threadNamePrefix(String threadNamePrefix) {
+		return new TaskSchedulerBuilder(this.poolSize, this.awaitTermination,
+				this.awaitTerminationPeriod, threadNamePrefix, this.customizers);
+	}",train
+45,45,"detect and return the logging system in use
+","public static LoggingSystem get(ClassLoader classLoader) {
+		String loggingSystem = System.getProperty(SYSTEM_PROPERTY);
+		if (StringUtils.hasLength(loggingSystem)) {
+			if (NONE.equals(loggingSystem)) {
+				return new NoOpLoggingSystem();
+			}
+			return get(classLoader, loggingSystem);
+		}
+		return SYSTEMS.entrySet().stream()
+				.filter((entry) -> ClassUtils.isPresent(entry.getKey(), classLoader))
+				.map((entry) -> get(classLoader, entry.getValue())).findFirst()
+				.orElseThrow(() -> new IllegalStateException(
+						""No suitable logging system located""));
+	}",train
+46,46,"add listener for file change events
+","public void addListener(FileChangeListener fileChangeListener) {
+		Assert.notNull(fileChangeListener, ""FileChangeListener must not be null"");
+		synchronized (this.monitor) {
+			checkNotStarted();
+			this.listeners.add(fileChangeListener);
+		}
+	}",train
+47,47,"add source folders to monitor
+","public void addSourceFolders(Iterable<File> folders) {
+		Assert.notNull(folders, ""Folders must not be null"");
+		synchronized (this.monitor) {
+			for (File folder : folders) {
+				addSourceFolder(folder);
+			}
+		}
+	}",train
+48,48,"add a source folder to monitor
+","public void addSourceFolder(File folder) {
+		Assert.notNull(folder, ""Folder must not be null"");
+		Assert.isTrue(!folder.isFile(), ""Folder '"" + folder + ""' must not be a file"");
+		synchronized (this.monitor) {
+			checkNotStarted();
+			this.folders.put(folder, null);
+		}
+	}",train
+49,49,"start monitoring the source folder for changes
+","public void start() {
+		synchronized (this.monitor) {
+			saveInitialSnapshots();
+			if (this.watchThread == null) {
+				Map<File, FolderSnapshot> localFolders = new HashMap<>();
+				localFolders.putAll(this.folders);
+				this.watchThread = new Thread(new Watcher(this.remainingScans,
+						new ArrayList<>(this.listeners), this.triggerFilter,
+						this.pollInterval, this.quietPeriod, localFolders));
+				this.watchThread.setName(""File Watcher"");
+				this.watchThread.setDaemon(this.daemon);
+				this.watchThread.start();
+			}
+		}
+	}",train
+50,50,"stop monitoring the source folders
+","void stopAfter(int remainingScans) {
+		Thread thread;
+		synchronized (this.monitor) {
+			thread = this.watchThread;
+			if (thread != null) {
+				this.remainingScans.set(remainingScans);
+				if (remainingScans <= 0) {
+					thread.interrupt();
+				}
+			}
+			this.watchThread = null;
+		}
+		if (thread != null && Thread.currentThread() != thread) {
+			try {
+				thread.join();
+			}
+			catch (InterruptedException ex) {
+				Thread.currentThread().interrupt();
+			}
+		}
+	}",train
+51,51,"extract the error attributes from the current request to be used to populate error views or json payloads
+","protected Map<String, Object> getErrorAttributes(ServerRequest request,
+			boolean includeStackTrace) {
+		return this.errorAttributes.getErrorAttributes(request, includeStackTrace);
+	}",train
+52,52,"check whether the trace attribute has been set on the given request
+","protected boolean isTraceEnabled(ServerRequest request) {
+		String parameter = request.queryParam(""trace"").orElse(""false"");
+		return !""false"".equalsIgnoreCase(parameter);
+	}",train
+53,53,"render the given error data as a view using a template view if available or a static html file if available otherwise
+","protected Mono<ServerResponse> renderErrorView(String viewName,
+			ServerResponse.BodyBuilder responseBody, Map<String, Object> error) {
+		if (isTemplateAvailable(viewName)) {
+			return responseBody.render(viewName, error);
+		}
+		Resource resource = resolveResource(viewName);
+		if (resource != null) {
+			return responseBody.body(BodyInserters.fromResource(resource));
+		}
+		return Mono.empty();
+	}",train
+54,54,"render a default html whitelabel error page
+","protected Mono<ServerResponse> renderDefaultErrorView(
+			ServerResponse.BodyBuilder responseBody, Map<String, Object> error) {
+		StringBuilder builder = new StringBuilder();
+		Date timestamp = (Date) error.get(""timestamp"");
+		Object message = error.get(""message"");
+		Object trace = error.get(""trace"");
+		Object requestId = error.get(""requestId"");
+		builder.append(""<html><body><h1>Whitelabel Error Page</h1>"").append(
+				""<p>This application has no configured error view, so you are seeing this as a fallback.</p>"")
+				.append(""<div id='created'>"").append(timestamp).append(""</div>"")
+				.append(""<div>["").append(requestId)
+				.append(""] There was an unexpected error (type="")
+				.append(htmlEscape(error.get(""error""))).append("", status="")
+				.append(htmlEscape(error.get(""status""))).append("").</div>"");
+		if (message != null) {
+			builder.append(""<div>"").append(htmlEscape(message)).append(""</div>"");
+		}
+		if (trace != null) {
+			builder.append(""<div style='white-space:pre-wrap;'>"")
+					.append(htmlEscape(trace)).append(""</div>"");
+		}
+		builder.append(""</body></html>"");
+		return responseBody.syncBody(builder.toString());
+	}",train
+55,55,"read a number of bytes from the stream checking that the end of the stream hasnt been reached
+","public int checkedRead(byte[] buffer, int offset, int length) throws IOException {
+		int amountRead = read(buffer, offset, length);
+		if (amountRead == -1) {
+			throw new IOException(""End of stream"");
+		}
+		return amountRead;
+	}",train
+56,56,"stop the application managed by this instance
+","public void stop()
+			throws MojoExecutionException, IOException, InstanceNotFoundException {
+		try {
+			this.connection.invoke(this.objectName, ""shutdown"", null, null);
+		}
+		catch (ReflectionException ex) {
+			throw new MojoExecutionException(""Shutdown failed"", ex.getCause());
+		}
+		catch (MBeanException ex) {
+			throw new MojoExecutionException(""Could not invoke shutdown operation"", ex);
+		}
+	}",train
+57,57,"some older servlet frameworks e
+","private void doWithThreadContextClassLoader(ClassLoader classLoader, Runnable code) {
+		ClassLoader existingLoader = (classLoader != null)
+				? ClassUtils.overrideThreadContextClassLoader(classLoader) : null;
+		try {
+			code.run();
+		}
+		finally {
+			if (existingLoader != null) {
+				ClassUtils.overrideThreadContextClassLoader(existingLoader);
+			}
+		}
+	}",train
+58,58,"get the provider that can be used to render the given view
+","public TemplateAvailabilityProvider getProvider(String view,
+			ApplicationContext applicationContext) {
+		Assert.notNull(applicationContext, ""ApplicationContext must not be null"");
+		return getProvider(view, applicationContext.getEnvironment(),
+				applicationContext.getClassLoader(), applicationContext);
+	}",train
+59,59,"get the provider that can be used to render the given view
+","public TemplateAvailabilityProvider getProvider(String view, Environment environment,
+			ClassLoader classLoader, ResourceLoader resourceLoader) {
+		Assert.notNull(view, ""View must not be null"");
+		Assert.notNull(environment, ""Environment must not be null"");
+		Assert.notNull(classLoader, ""ClassLoader must not be null"");
+		Assert.notNull(resourceLoader, ""ResourceLoader must not be null"");
+		Boolean useCache = environment.getProperty(""spring.template.provider.cache"",
+				Boolean.class, true);
+		if (!useCache) {
+			return findProvider(view, environment, classLoader, resourceLoader);
+		}
+		TemplateAvailabilityProvider provider = this.resolved.get(view);
+		if (provider == null) {
+			synchronized (this.cache) {
+				provider = findProvider(view, environment, classLoader, resourceLoader);
+				provider = (provider != null) ? provider : NONE;
+				this.resolved.put(view, provider);
+				this.cache.put(view, provider);
+			}
+		}
+		return (provider != NONE) ? provider : null;
+	}",train
+60,60,"generate a report for the specified service
+","public String generate(String url) throws IOException {
+		Object content = this.initializrService.loadServiceCapabilities(url);
+		if (content instanceof InitializrServiceMetadata) {
+			return generateHelp(url, (InitializrServiceMetadata) content);
+		}
+		return content.toString();
+	}",train
+61,61,"render the error information as an html view
+","protected Mono<ServerResponse> renderErrorView(ServerRequest request) {
+		boolean includeStackTrace = isIncludeStackTrace(request, MediaType.TEXT_HTML);
+		Map<String, Object> error = getErrorAttributes(request, includeStackTrace);
+		HttpStatus errorStatus = getHttpStatus(error);
+		ServerResponse.BodyBuilder responseBody = ServerResponse.status(errorStatus)
+				.contentType(MediaType.TEXT_HTML);
+		return Flux
+				.just(""error/"" + errorStatus.value(),
+						""error/"" + SERIES_VIEWS.get(errorStatus.series()), ""error/error"")
+				.flatMap((viewName) -> renderErrorView(viewName, responseBody, error))
+				.switchIfEmpty(this.errorProperties.getWhitelabel().isEnabled()
+						? renderDefaultErrorView(responseBody, error)
+						: Mono.error(getError(request)))
+				.next();
+	}",train
+62,62,"render the error information as a json payload
+","protected Mono<ServerResponse> renderErrorResponse(ServerRequest request) {
+		boolean includeStackTrace = isIncludeStackTrace(request, MediaType.ALL);
+		Map<String, Object> error = getErrorAttributes(request, includeStackTrace);
+		return ServerResponse.status(getHttpStatus(error))
+				.contentType(MediaType.APPLICATION_JSON_UTF8)
+				.body(BodyInserters.fromObject(error));
+	}",train
+63,63,"determine if the stacktrace attribute should be included
+","protected boolean isIncludeStackTrace(ServerRequest request, MediaType produces) {
+		ErrorProperties.IncludeStacktrace include = this.errorProperties
+				.getIncludeStacktrace();
+		if (include == ErrorProperties.IncludeStacktrace.ALWAYS) {
+			return true;
+		}
+		if (include == ErrorProperties.IncludeStacktrace.ON_TRACE_PARAM) {
+			return isTraceEnabled(request);
+		}
+		return false;
+	}",train
+64,64,"get the http error status information from the error map
+","protected HttpStatus getHttpStatus(Map<String, Object> errorAttributes) {
+		int statusCode = (int) errorAttributes.get(""status"");
+		return HttpStatus.valueOf(statusCode);
+	}",train
+65,65,"detect if the project should be extracted
+","private boolean shouldExtract(ProjectGenerationRequest request,
+			ProjectGenerationResponse response) {
+		if (request.isExtract()) {
+			return true;
+		}
+		// explicit name hasn't been provided for an archive and there is no extension
+		if (isZipArchive(response) && request.getOutput() != null
+				&& !request.getOutput().contains(""."")) {
+			return true;
+		}
+		return false;
+	}",train
+66,66,"scan for entities with the specified annotations
+","@SafeVarargs
+	public final Set<Class<?>> scan(Class<? extends Annotation>... annotationTypes)
+			throws ClassNotFoundException {
+		List<String> packages = getPackages();
+		if (packages.isEmpty()) {
+			return Collections.emptySet();
+		}
+		ClassPathScanningCandidateComponentProvider scanner = new ClassPathScanningCandidateComponentProvider(
+				false);
+		scanner.setEnvironment(this.context.getEnvironment());
+		scanner.setResourceLoader(this.context);
+		for (Class<? extends Annotation> annotationType : annotationTypes) {
+			scanner.addIncludeFilter(new AnnotationTypeFilter(annotationType));
+		}
+		Set<Class<?>> entitySet = new HashSet<>();
+		for (String basePackage : packages) {
+			if (StringUtils.hasText(basePackage)) {
+				for (BeanDefinition candidate : scanner
+						.findCandidateComponents(basePackage)) {
+					entitySet.add(ClassUtils.forName(candidate.getBeanClassName(),
+							this.context.getClassLoader()));
+				}
+			}
+		}
+		return entitySet;
+	}",train
+67,67,"determine if the stacktrace attribute should be included
+","protected boolean isIncludeStackTrace(HttpServletRequest request,
+			MediaType produces) {
+		IncludeStacktrace include = getErrorProperties().getIncludeStacktrace();
+		if (include == IncludeStacktrace.ALWAYS) {
+			return true;
+		}
+		if (include == IncludeStacktrace.ON_TRACE_PARAM) {
+			return getTraceParameter(request);
+		}
+		return false;
+	}",train
+68,68,"resolve the name of an item against this instance
+","private void resolveName(ConfigurationMetadataItem item) {
+		item.setName(item.getId()); // fallback
+		ConfigurationMetadataSource source = getSource(item);
+		if (source != null) {
+			String groupId = source.getGroupId();
+			String dottedPrefix = groupId + ""."";
+			String id = item.getId();
+			if (hasLength(groupId) && id.startsWith(dottedPrefix)) {
+				String name = id.substring(dottedPrefix.length());
+				item.setName(name);
+			}
+		}
+	}",train
+69,69,"called to restart the application
+","protected void restart(Set<URL> urls, ClassLoaderFiles files) {
+		Restarter restarter = Restarter.getInstance();
+		restarter.addUrls(urls);
+		restarter.addClassLoaderFiles(files);
+		restarter.restart();
+	}",train
+70,70,"load bean definitions from the given xml resources
+","public final void load(Class<?> relativeClass, String... resourceNames) {
+		Resource[] resources = new Resource[resourceNames.length];
+		for (int i = 0; i < resourceNames.length; i++) {
+			resources[i] = new ClassPathResource(resourceNames[i], relativeClass);
+		}
+		this.reader.loadBeanDefinitions(resources);
+	}",train
+71,71,"invoke the specified consumer with the bound value or do nothing if no value has been bound
+","public void ifBound(Consumer<? super T> consumer) {
+		Assert.notNull(consumer, ""Consumer must not be null"");
+		if (this.value != null) {
+			consumer.accept(this.value);
+		}
+	}",train
+72,72,"apply the provided mapping function to the bound value or return an updated unbound result if no value has been bound
+","public <U> BindResult<U> map(Function<? super T, ? extends U> mapper) {
+		Assert.notNull(mapper, ""Mapper must not be null"");
+		return of((this.value != null) ? mapper.apply(this.value) : null);
+	}",train
+73,73,"return the object that was bound or a new instance of the specified class if no value has been bound
+","public T orElseCreate(Class<? extends T> type) {
+		Assert.notNull(type, ""Type must not be null"");
+		return (this.value != null) ? this.value : BeanUtils.instantiateClass(type);
+	}",train
+74,74,"decode msdos date time details
+","private long decodeMsDosFormatDateTime(long datetime) {
+		LocalDateTime localDateTime = LocalDateTime.of(
+				(int) (((datetime >> 25) & 0x7f) + 1980), (int) ((datetime >> 21) & 0x0f),
+				(int) ((datetime >> 16) & 0x1f), (int) ((datetime >> 11) & 0x1f),
+				(int) ((datetime >> 5) & 0x3f), (int) ((datetime << 1) & 0x3e));
+		return localDateTime.toEpochSecond(
+				ZoneId.systemDefault().getRules().getOffset(localDateTime)) * 1000;
+	}",train
+75,75,"launch the application
+","protected void launch(String[] args) throws Exception {
+		JarFile.registerUrlProtocolHandler();
+		ClassLoader classLoader = createClassLoader(getClassPathArchives());
+		launch(args, getMainClass(), classLoader);
+	}",train
+76,76,"create a classloader for the specified archives
+","protected ClassLoader createClassLoader(List<Archive> archives) throws Exception {
+		List<URL> urls = new ArrayList<>(archives.size());
+		for (Archive archive : archives) {
+			urls.add(archive.getUrl());
+		}
+		return createClassLoader(urls.toArray(new URL[0]));
+	}",train
+77,77,"return the specified java bean property name in dashed form
+","public static String toDashedForm(String name, int start) {
+		StringBuilder result = new StringBuilder();
+		String replaced = name.replace('_', '-');
+		for (int i = start; i < replaced.length(); i++) {
+			char ch = replaced.charAt(i);
+			if (Character.isUpperCase(ch) && result.length() > 0
+					&& result.charAt(result.length() - 1) != '-') {
+				result.append('-');
+			}
+			result.append(Character.toLowerCase(ch));
+		}
+		return result.toString();
+	}",train
+78,78,"replay deferred logging to the specified destination
+","public void replayTo(Log destination) {
+		synchronized (this.lines) {
+			for (Line line : this.lines) {
+				logTo(destination, line.getLevel(), line.getMessage(),
+						line.getThrowable());
+			}
+			this.lines.clear();
+		}
+	}",train
+79,79,"replay from a source log to a destination log when the source is deferred
+","public static Log replay(Log source, Class<?> destination) {
+		return replay(source, LogFactory.getLog(destination));
+	}",train
+80,80,"replay from a source log to a destination log when the source is deferred
+","public static Log replay(Log source, Log destination) {
+		if (source instanceof DeferredLog) {
+			((DeferredLog) source).replayTo(destination);
+		}
+		return destination;
+	}",train
+81,81,"creates a new instance of the class
+","public static ColorConverter newInstance(Configuration config, String[] options) {
+		if (options.length < 1) {
+			LOGGER.error(""Incorrect number of options on style. ""
+					+ ""Expected at least 1, received {}"", options.length);
+			return null;
+		}
+		if (options[0] == null) {
+			LOGGER.error(""No pattern supplied on style"");
+			return null;
+		}
+		PatternParser parser = PatternLayout.createPatternParser(config);
+		List<PatternFormatter> formatters = parser.parse(options[0]);
+		AnsiElement element = (options.length != 1) ? ELEMENTS.get(options[1]) : null;
+		return new ColorConverter(formatters, element);
+	}",train
+82,82,"run the connection
+","public void run() throws Exception {
+		if (this.header.contains(""Upgrade: websocket"")
+				&& this.header.contains(""Sec-WebSocket-Version: 13"")) {
+			runWebSocket();
+		}
+		if (this.header.contains(""GET /livereload.js"")) {
+			this.outputStream.writeHttp(getClass().getResourceAsStream(""livereload.js""),
+					""text/javascript"");
+		}
+	}",train
+83,83,"perform binding for the aggregate
+","@SuppressWarnings(""unchecked"")
+	public final Object bind(ConfigurationPropertyName name, Bindable<?> target,
+			AggregateElementBinder elementBinder) {
+		Object result = bindAggregate(name, target, elementBinder);
+		Supplier<?> value = target.getValue();
+		if (result == null || value == null) {
+			return result;
+		}
+		return merge((Supplier<T>) value, (T) result);
+	}",train
+84,84,"search the system properties and environment variables for a value with the provided key
+","public static String getProperty(String key, String defaultValue, String text) {
+		try {
+			String propVal = System.getProperty(key);
+			if (propVal == null) {
+				// Fall back to searching the system environment.
+				propVal = System.getenv(key);
+			}
+			if (propVal == null) {
+				// Try with underscores.
+				String name = key.replace('.', '_');
+				propVal = System.getenv(name);
+			}
+			if (propVal == null) {
+				// Try uppercase with underscores as well.
+				String name = key.toUpperCase(Locale.ENGLISH).replace('.', '_');
+				propVal = System.getenv(name);
+			}
+			if (propVal != null) {
+				return propVal;
+			}
+		}
+		catch (Throwable ex) {
+			System.err.println(""Could not resolve key '"" + key + ""' in '"" + text
+					+ ""' as system property or in environment: "" + ex);
+		}
+		return defaultValue;
+	}",train
+85,85,"add config file property sources to the specified environment
+","protected void addPropertySources(ConfigurableEnvironment environment,
+			ResourceLoader resourceLoader) {
+		RandomValuePropertySource.addToEnvironment(environment);
+		new Loader(environment, resourceLoader).load();
+	}",train
+86,86,"final handle an interrupt signal ctrlc
+","protected void handleSigInt() {
+		if (this.commandRunner.handleSigInt()) {
+			return;
+		}
+		System.out.println(String.format(""%nThanks for using Spring Boot""));
+		System.exit(1);
+	}",train
+87,87,"set specific status mappings
+","public void setStatusMapping(Map<String, Integer> statusMapping) {
+		Assert.notNull(statusMapping, ""StatusMapping must not be null"");
+		this.statusMapping = new HashMap<>(statusMapping);
+	}",train
+88,88,"add specific status mappings to the existing set
+","public void addStatusMapping(Map<String, Integer> statusMapping) {
+		Assert.notNull(statusMapping, ""StatusMapping must not be null"");
+		this.statusMapping.putAll(statusMapping);
+	}",train
+89,89,"add a status mapping to the existing set
+","public void addStatusMapping(Status status, Integer httpStatus) {
+		Assert.notNull(status, ""Status must not be null"");
+		Assert.notNull(httpStatus, ""HttpStatus must not be null"");
+		addStatusMapping(status.getCode(), httpStatus);
+	}",train
+90,90,"add a status mapping to the existing set
+","public void addStatusMapping(String statusCode, Integer httpStatus) {
+		Assert.notNull(statusCode, ""StatusCode must not be null"");
+		Assert.notNull(httpStatus, ""HttpStatus must not be null"");
+		this.statusMapping.put(statusCode, httpStatus);
+	}",train
+91,91,"return the name of the file relative to the source folder
+","public String getRelativeName() {
+		File folder = this.sourceFolder.getAbsoluteFile();
+		File file = this.file.getAbsoluteFile();
+		String folderName = StringUtils.cleanPath(folder.getPath());
+		String fileName = StringUtils.cleanPath(file.getPath());
+		Assert.state(fileName.startsWith(folderName), () -> ""The file "" + fileName
+				+ "" is not contained in the source folder "" + folderName);
+		return fileName.substring(folderName.length() + 1);
+	}",train
+92,92,"postprocess the content to expose
+","@Override
+	protected void postProcessContent(Map<String, Object> content) {
+		replaceValue(getNestedMap(content, ""commit""), ""time"",
+				getProperties().getCommitTime());
+		replaceValue(getNestedMap(content, ""build""), ""time"",
+				getProperties().getInstant(""build.time""));
+	}",train
+93,93,"append text with the given ansi codes
+","AnsiString append(String text, Code... codes) {
+		if (codes.length == 0 || !isAnsiSupported()) {
+			this.value.append(text);
+			return this;
+		}
+		Ansi ansi = Ansi.ansi();
+		for (Code code : codes) {
+			ansi = applyCode(ansi, code);
+		}
+		this.value.append(ansi.a(text).reset().toString());
+		return this;
+	}",train
+94,94,"log a warning indicating that fork mode has been explicitly disabled while some conditions are present that require to enable it
+","protected void logDisabledFork() {
+		if (getLog().isWarnEnabled()) {
+			if (hasAgent()) {
+				getLog().warn(""Fork mode disabled, ignoring agent"");
+			}
+			if (hasJvmArgs()) {
+				RunArguments runArguments = resolveJvmArguments();
+				getLog().warn(""Fork mode disabled, ignoring JVM argument(s) ["" + Arrays
+						.stream(runArguments.asArray()).collect(Collectors.joining("" ""))
+						+ ""]"");
+			}
+			if (hasWorkingDirectorySet()) {
+				getLog().warn(
+						""Fork mode disabled, ignoring working directory configuration"");
+			}
+		}
+	}",train
+95,95,"resolve the jvm arguments to use
+","protected RunArguments resolveJvmArguments() {
+		StringBuilder stringBuilder = new StringBuilder();
+		if (this.systemPropertyVariables != null) {
+			stringBuilder.append(this.systemPropertyVariables.entrySet().stream()
+					.map((e) -> SystemPropertyFormatter.format(e.getKey(), e.getValue()))
+					.collect(Collectors.joining("" "")));
+		}
+		if (this.jvmArguments != null) {
+			stringBuilder.append("" "").append(this.jvmArguments);
+		}
+		return new RunArguments(stringBuilder.toString());
+	}",test
+96,96,"check if one of the default resource locations actually exists
+","protected ConditionOutcome getResourceOutcome(ConditionContext context,
+			AnnotatedTypeMetadata metadata) {
+		List<String> found = new ArrayList<>();
+		for (String location : this.resourceLocations) {
+			Resource resource = context.getResourceLoader().getResource(location);
+			if (resource != null && resource.exists()) {
+				found.add(location);
+			}
+		}
+		if (found.isEmpty()) {
+			ConditionMessage message = startConditionMessage()
+					.didNotFind(""resource"", ""resources"")
+					.items(Style.QUOTE, Arrays.asList(this.resourceLocations));
+			return ConditionOutcome.noMatch(message);
+		}
+		ConditionMessage message = startConditionMessage().found(""resource"", ""resources"")
+				.items(Style.QUOTE, found);
+		return ConditionOutcome.match(message);
+	}",test
+97,97,"set the default uri to be used on operations that do not have a uri parameter
+","public WebServiceTemplateBuilder setDefaultUri(String defaultUri) {
+		Assert.hasText(defaultUri, ""DefaultUri must not be empty"");
+		return setDestinationProvider(() -> URI.create(defaultUri));
+	}",test
+98,98,"return the autoconfiguration base packages for the given bean factory
+","public static List<String> get(BeanFactory beanFactory) {
+		try {
+			return beanFactory.getBean(BEAN, BasePackages.class).get();
+		}
+		catch (NoSuchBeanDefinitionException ex) {
+			throw new IllegalStateException(
+					""Unable to retrieve @EnableAutoConfiguration base packages"");
+		}
+	}",test
+99,99,"programmatically registers the autoconfiguration package names
+","public static void register(BeanDefinitionRegistry registry, String... packageNames) {
+		if (registry.containsBeanDefinition(BEAN)) {
+			BeanDefinition beanDefinition = registry.getBeanDefinition(BEAN);
+			ConstructorArgumentValues constructorArguments = beanDefinition
+					.getConstructorArgumentValues();
+			constructorArguments.addIndexedArgumentValue(0,
+					addBasePackages(constructorArguments, packageNames));
+		}
+		else {
+			GenericBeanDefinition beanDefinition = new GenericBeanDefinition();
+			beanDefinition.setBeanClass(BasePackages.class);
+			beanDefinition.getConstructorArgumentValues().addIndexedArgumentValue(0,
+					packageNames);
+			beanDefinition.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
+			registry.registerBeanDefinition(BEAN, beanDefinition);
+		}
+	}",test
