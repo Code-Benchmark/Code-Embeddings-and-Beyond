@@ -1,3 +1,5 @@
+# Do Abstract Syntax Trees Matter? Revisiting the Role of ASTs in Program Representation Learning
+
 ## Description
 This paper systemically evaluates the performance of nine program representation learning models on three common tasks, where seven models are based on abstract syntax trees and two models are based on plain text of source code. The tasks are code classification, code clone detection, and code search, respectively. The results of performance evaluation show that they perform diversely in each task and the performance of the AST-based models is generally unstable over different tasks. In order to further explain the results, we apply a prediction attribution technique to find what elements are captured by the models and responsible for the predictions in each task. 
 
